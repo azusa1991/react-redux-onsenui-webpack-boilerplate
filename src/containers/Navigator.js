@@ -60,7 +60,7 @@ export default class Navigator extends React.Component {
           onOpen={openMenu}
           width={240}
           collapse={true}
-          isSwipeable={true}>
+          swipeable={true}>
           <Menu
             navigator={this.navigator}
             onMenuItemClick={closeMenu}
