@@ -8,10 +8,27 @@ let basePlugins = [
     __DEV__: process.env.NODE_ENV !== 'production',
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
   }),
-  new webpack.optimize.CommonsChunkPlugin('vendor', '[name].[hash].js'),
+  new webpack.optimize.CommonsChunkPlugin({ name: "vendor", filename: '[name].js' }),
   new HtmlWebpackPlugin({
-    template: path.join(__dirname, 'src', 'index.html'),
-    inject: 'body'
+    template: path.join(__dirname, 'src', 'index.html')
+  }),
+  new webpack.LoaderOptionsPlugin({
+    options: {
+      sassLoader: {
+        includePaths: [
+          "node_modules/ionicons/dist/scss"
+        ]
+      },
+      postcss: [
+        require('postcss-import')({ addDependencyTo: webpack }),
+        require('postcss-url')(),
+        require('postcss-custom-properties')(),
+        require('postcss-nested')(),
+        require('postcss-cssnext')(),
+        require('postcss-browser-reporter')(),
+        require('postcss-reporter')()
+      ]
+    }
   })
 ];
 
@@ -50,54 +67,35 @@ module.exports = {
       'react-dom',
       'onsenui'
     ],
-    styl: path.join(__dirname, 'src', 'styl', 'index.styl'),
     scss: path.join(__dirname, 'src', 'scss', 'index.scss')
   },
 
   output: {
     path: path.join(__dirname, 'www'),
-    filename: '[name].[hash].js',
+    filename: '[name].js',
     publicPath: '/'
   },
   module: {
-    preLoaders: [
-      { test: /\.js?$/, include: /src/, loader: 'eslint' }
-    ],
-    loaders: [
-      { test: /\.html$/, include: /src/, loaders: ['raw'] },
-      { test: /\.json$/, include: /src/, loaders: ['json'] },
-      { test: /\.(png|jpg|svg)$/, include: /src/, loader: 'file?name=img/[ext]/[name].[ext]' },
-      { test: /\.styl$/, loaders: ['style', 'css', 'stylus'] },
-      { test: /\.scss$/, loaders: ['style', 'css', 'sass'] },
-      { test: /\.css$/, include: /src/, loaders: ['style', 'css?modules&localIdentName=[local]---[hash:base64:5]', 'postcss'] },
-      { test: /\.js?$/, include: /src/, loaders: ['react-hot', 'babel'] },
+    rules: [
+      { test: /\.js?$/, include: /src/, enforce:'pre', loader: 'eslint-loader' },
+      { test: /\.html$/, include: /src/, loaders: ['raw-loader'] },
+      { test: /\.json$/, include: /src/, loaders: ['json-loader'] },
+      { test: /\.(png|jpg|svg)$/, include: /src/, loader: 'file-loader?name=img/[ext]/[name].[ext]' },
+      { test: /\.scss$/, loaders: ['style-loader', 'css-loader', 'sass-loader'] },
+      { test: /\.css$/, include: /src/, loaders: ['style-loader', 'css-loader?modules&localIdentName=[local]---[hash:base64:5]', 'postcss-loader'] },
+      { test: /\.js?$/, include: /src/, loaders: ['react-hot-loader', 'babel-loader'] },
       {
         test: [
           /ionicons\.svg/, /ionicons\.eot/, /ionicons\.ttf/, /ionicons\.woff/,
           /fontawesome-webfont\.svg/, /fontawesome-webfont\.eot/, /fontawesome-webfont\.ttf/, /fontawesome-webfont\.woff/,
           /Material-Design-Iconic-Font\.svg/, /Material-Design-Iconic-Font\.eot/, /Material-Design-Iconic-Font\.ttf/, /Material-Design-Iconic-Font\.woff/, /Material-Design-Iconic-Font\.woff2/
-        ], loader: 'file?name=fonts/[name].[ext]'
+        ], loader: 'file-loader?name=fonts/[name].[ext]'
       }
     ]
   },
-  sassLoader: {
-    includePaths: [
-      "node_modules/ionicons/dist/scss"
-    ]
-  },
+
   plugins: plugins,
   resolve: {
-    extensions: ['', '.js', '.jsx', '.json', '.css', '.scss', '.styl']
-  },
-  postcss: function (webpack) {
-    return [
-      require('postcss-import')({ addDependencyTo: webpack }),
-      require('postcss-url')(),
-      require('postcss-custom-properties')(),
-      require('postcss-nested')(),
-      require('postcss-cssnext')(),
-      require('postcss-browser-reporter')(),
-      require('postcss-reporter')()
-    ]
+    extensions: ['.html','.js', '.jsx', '.json', '.css', '.scss']
   }
 };

@@ -28,7 +28,7 @@ const mapDispatchToProps = dispatch => {
 
 const initialRoute = getInitialRoute()
 
-export default class Navigator extends React.Component {
+export class Navigator extends React.Component {
   navigator = null; // This is a hack in order to pass the navigator to the side menu component
   renderPage = (route, navigator) => {
     this.navigator = navigator;
